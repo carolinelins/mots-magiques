@@ -1,29 +1,38 @@
 <?php
+// Récupére la liste des mots vides
 $stopwordsJson = file_get_contents('stopwords-fr.json');
 $stopwordsArray = json_decode($stopwordsJson, true);
-$word_count = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $word_count = [];
+    $word_count = []; // Initialise un tableau vide pour le comptage de mots
     if (isset($_FILES['textFile']) && $_FILES['textFile']['error'] === UPLOAD_ERR_OK) {
-        $fileContent = file_get_contents($_FILES['textFile']['tmp_name']);
-        $text = $fileContent;
+        // Si un fichier a été envoyé avec succès
+        $fileContent = file_get_contents($_FILES['textFile']['tmp_name']); // Lire le contenu du fichier temporaire
+        $text = $fileContent; // Enregistre le contenu du fichier dans $text
     } else {
-        $text = $_POST['text'] ?? '';
+        // Si aucun fichier n'a été envoyé, utiliser le texte de la zone de texte
+        $text = $_POST['textInput'] ?? '';
     }
 
     if ($text) {
+        // Nettoyage des mots
         $text = strtolower($text);
         $text = preg_replace("/\b\w+['’]+/u", '', $text);
         $text = preg_replace("/[^\w\s'À-ž]+/u", '', $text);
         $words = preg_split('/\s+/', $text);
 
+        // Parcourir chaque mot extrait du texte
         foreach ($words as $word) {
+            // Vérifier si le mot n'est pas une stopword et a plus de 2 caractères
             if (!in_array($word, $stopwordsArray) && strlen($word) > 2) {
+                // Incrémenter le compteur de mots ou l'initialiser à 1 s'il n'existe pas encore
                 $word_count[$word] = ($word_count[$word] ?? 0) + 1;
             }
         }
+
+        // Trier le tableau des mots par ordre décroissant de fréquence
         arsort($word_count);
+        // Conserver seulement les 30 mots les plus fréquents
         $word_count = array_slice($word_count, 0, 30);
     }
 }
@@ -76,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #D2587C;
         }
 
-
         #wordCloud {
             background-color: #ffffff;
             width: 800px;
@@ -106,35 +114,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h4>générateur de nuages de mots</h4>
 
     <form id="textForm" method="post" enctype="multipart/form-data">
-        <textarea id="textInput" name="text" placeholder="Collez votre texte ici" rows="10"
+        <textarea id="textInput" name="textInput" placeholder="Collez votre texte ici" rows="10"
             cols="50"></textarea><br><br>
         <span><b>ou télécharger un fichier texte :</b></span>
         <input type="file" name="textFile" accept=".txt"><br><br>
         <button type="submit">Générer</button><br><br>
-
-
     </form>
 
     <div id="wordCloud">
         <?php
+        // Vérifier si le tableau des mots n'est pas vide
         if (!empty($word_count)) {
-            $maxFreq = max($word_count);
-
+            // Obtenir les clés (mots) du tableau et les mélanger aléatoirement
             $wordsShuffled = array_keys($word_count);
             shuffle($wordsShuffled);
 
+            // Parcourir les mots mélangés
             foreach ($wordsShuffled as $word) {
+                // Générer une couleur aléatoire pour chaque mot
                 $red = rand(0, 255);
                 $green = rand(0, 255);
                 $blue = rand(0, 255);
 
+                // Récupérer le nombre d'occurrences du mot
                 $count = $word_count[$word];
 
-                $hue = ($count / $maxFreq) * 360;
-
+                // Afficher chaque mot avec une taille de police en fonction de sa fréquence et une couleur aléatoire
                 echo '<span class="word" style="color: rgb(' . $red . ', ' . $green . ', ' . $blue . '); font-size: ' . (18 + ($count * 5)) . 'px;">' . htmlspecialchars($word) . '</span>';
             }
         } else {
+            // Si le tableau des mots est vide, afficher un message
             echo '<p style="text-align: center; font-size: 20px; color: #888;">Votre nuage de mots s\'affichera ici</p>';
         }
         ?>
