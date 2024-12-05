@@ -1,4 +1,6 @@
-# MotsMagiques - Word Cloud Generator - Générateur de Nuage de Mots - Gerador de Nuvem de Palavras
+# MotsMagiques 
+
+Word Cloud Generator - Générateur de Nuage de Mots - Gerador de Nuvem de Palavras
 
 ## English
 
