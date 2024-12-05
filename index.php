@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .word {
             display: inline-block;
-            margin: 5px;
+            margin: 0px;
             padding: 3px;
             font-weight: bold;
         }
@@ -136,11 +136,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $green = rand(0, 255);
                 $blue = rand(0, 255);
 
-                // Récupérer le nombre d'occurrences du mot
+                // Récupérer le nombre d'occurrences du mot et définir la taille de la police
                 $count = $word_count[$word];
+                $fontSize = ($count > 13) ? 95 : (15 + ($count * 5));
 
                 // Afficher chaque mot avec une taille de police en fonction de sa fréquence et une couleur aléatoire
-                echo '<span class="word" style="color: rgb(' . $red . ', ' . $green . ', ' . $blue . '); font-size: ' . (18 + ($count * 5)) . 'px;">' . htmlspecialchars($word) . '</span>';
+                echo '<span class="word" style="color: rgb(' . $red . ', ' . $green . ', ' . $blue . '); font-size: ' . $fontSize . 'px;">' . htmlspecialchars($word) . '</span>';
             }
         } else {
             // Si le tableau des mots est vide, afficher un message
